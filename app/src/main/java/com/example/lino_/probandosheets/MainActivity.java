@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements Response.Listener
     TextView txt_nombre;
     TextView txt_apellido;
     TextView txt_id;
+    Button btn_prueba;
 
     String SPREAD_SHEET_ID;
     String urlscriptlectura;
@@ -47,11 +50,14 @@ public class MainActivity extends AppCompatActivity implements Response.Listener
         txt_nombre=findViewById(R.id.txt_nombre);
         txt_apellido=findViewById(R.id.txt_apellido);
         txt_id=findViewById(R.id.txt_id);
+        btn_prueba=findViewById(R.id.btn_prueba);
+
 
         SPREAD_SHEET_ID= "1gYHj7yLh6ioC1W1t0IngaxtIkV2S35euJAwAJ0mQLwY";
         urlscriptlectura="https://script.google.com/macros/s/AKfycbye1OqkVZ7dhXoH8TeB-wvRcGOeURFTHSbpRIMU755U_rJkmLk/exec?spreadsheetId="+SPREAD_SHEET_ID+"&sheet";
         urlscriptescritura="https://script.google.com/macros/s/AKfycbwK7r70VhTpV2i8LzpoDIzbW6th3VohMDtjW7kIMMywjVKbkJBY/exec?spreadsheetId="+SPREAD_SHEET_ID+"&sheet";
-        tomardatos();
+
+        //tomardatos();
         //addItemToSheet();
     }
 
@@ -114,9 +120,16 @@ public class MainActivity extends AppCompatActivity implements Response.Listener
 
     ///////////////////////////////////////////////////////////
 
+    public  void onclick(View v){
+
+        tomardatos();
+
+    }
+
+
     void tomardatos(){
         RequestQueue queue= Volley.newRequestQueue(this);
-        JsonArrayRequest jsonArrayRequest=new JsonArrayRequest(Request.Method.GET, urlscriptescritura,null, this,this );
+        JsonArrayRequest jsonArrayRequest=new JsonArrayRequest(Request.Method.GET, urlscriptlectura,null, this,this );
         queue.add(jsonArrayRequest);
     }
 
