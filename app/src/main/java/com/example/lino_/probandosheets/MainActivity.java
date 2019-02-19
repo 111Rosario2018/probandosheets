@@ -14,6 +14,7 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.Response.Listener;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
@@ -30,35 +31,51 @@ import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 
-public class MainActivity extends AppCompatActivity implements Response.Listener<JSONArray>,Response.ErrorListener {
+public class MainActivity extends AppCompatActivity  {
 
     TextView txt_nombre;
     TextView txt_apellido;
     TextView txt_id;
     Button btn_prueba;
+    Button btn_tomardatos;
 
     String SPREAD_SHEET_ID;
     String urlscriptlectura;
     String urlscriptescritura;
+
+    public static final String APP_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTQfznVatC3rAP0n4uzp_tPSqLCbn5EgbLGNpG9MkLt0ZAG2I/exec";
+    public static final String ADD_USER_URL = APP_SCRIPT_WEB_APP_URL;
+    public static final String LIST_USER_URL = APP_SCRIPT_WEB_APP_URL+"?action=readAll";
+
+    public static final String KEY_ID = "uId";
+    public static final String KEY_NAME = "uName";
+    public static final String KEY_IMAGE = "uImage";
+    public  static final String KEY_ACTION = "action";
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        txt_nombre=findViewById(R.id.txt_nombre);
-        txt_apellido=findViewById(R.id.txt_apellido);
-        txt_id=findViewById(R.id.txt_id);
-        btn_prueba=findViewById(R.id.btn_prueba);
+        txt_nombre = findViewById(R.id.txt_nombre);
+        txt_apellido = findViewById(R.id.txt_apellido);
+        txt_id = findViewById(R.id.txt_id);
+        btn_prueba = findViewById(R.id.btn_prueba);
+        btn_tomardatos=findViewById(R.id.btn_tomardatos);
 
-
-        SPREAD_SHEET_ID= "1gYHj7yLh6ioC1W1t0IngaxtIkV2S35euJAwAJ0mQLwY";
-        urlscriptlectura="https://script.google.com/macros/s/AKfycbye1OqkVZ7dhXoH8TeB-wvRcGOeURFTHSbpRIMU755U_rJkmLk/exec?spreadsheetId="+SPREAD_SHEET_ID+"&sheet";
-        urlscriptescritura="https://script.google.com/macros/s/AKfycbwK7r70VhTpV2i8LzpoDIzbW6th3VohMDtjW7kIMMywjVKbkJBY/exec?spreadsheetId="+SPREAD_SHEET_ID+"&sheet";
-
+        SPREAD_SHEET_ID = "1gYHj7yLh6ioC1W1t0IngaxtIkV2S35euJAwAJ0mQLwY";
+        urlscriptlectura = "https://script.google.com/macros/s/AKfycbye1OqkVZ7dhXoH8TeB-wvRcGOeURFTHSbpRIMU755U_rJkmLk/exec?spreadsheetId=" + SPREAD_SHEET_ID + "&sheet";
+        //urlscriptescritura="https://script.google.com/macros/s/AKfycbwK7r70VhTpV2i8LzpoDIzbW6th3VohMDtjW7kIMMywjVKbkJBY/exec?spreadsheetId="+SPREAD_SHEET_ID+"&sheet";
+        urlscriptescritura = "https://script.google.com/macros/s/AKfycbx9fUHMLr3u3_WsgfntNRDOvoWESavhYBLILbwCmwxMSm1Zo3R7/exec";
         //tomardatos();
         //addItemToSheet();
+
+
     }
 
 /*
@@ -120,46 +137,141 @@ public class MainActivity extends AppCompatActivity implements Response.Listener
 
     ///////////////////////////////////////////////////////////
 
-    public  void onclick(View v){
-
-        tomardatos();
+    public void onclick(View v) {
+        txt_nombre.setText("");
+        addUser();
 
     }
+
+    public void mostrardatos(View v){
+        tomardatos();
+    }
+
+public void addUser(){
+    JSONObject objeto=new JSONObject();
+
+    JSONArray rowsArray=new JSONArray();
+    JSONArray row1=new JSONArray();
+    JSONArray row2=new JSONArray();
+
+
+    try {
+
+        objeto.put("hojaid","1gYHj7yLh6ioC1W1t0IngaxtIkV2S35euJAwAJ0mQLwY");
+        objeto.put("sheetName","Sheet1");
+    } catch (JSONException e) {
+        e.printStackTrace();
+    }
+
+
+    row1.put("6");
+    row1.put("jose");
+    row1.put("meljide");
+
+
+    row2.put("8");
+    row2.put("jacinto");
+    row2.put("papanatas");
+
+    rowsArray.put(row1);
+    rowsArray.put(row2);
+
+    try {
+        objeto.put("rows",rowsArray);
+    } catch (JSONException e) {
+        e.printStackTrace();
+    }
+
+    Log.e("objetojson creado: ",objeto.toString());
+
+
+    JsonObject pro=new JsonObject();
+    pro.addProperty("ID",8);
+    pro.addProperty("Nombre","Ernestino");
+    pro.addProperty("Apellido","josefono");
+
+
+    Log.e("otro json",pro.toString());
+
+
+
+
+    RequestQueue queue=Volley.newRequestQueue(this);
+
+    JsonObjectRequest llamada=new JsonObjectRequest(urlscriptescritura,objeto, new Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Toast.makeText(getApplicationContext(), "funca", Toast.LENGTH_LONG).show();
+
+            Log.e("objetojson creado: ",response.toString());
+
+        }
+    }, new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Toast.makeText(getApplicationContext(), "no funca", Toast.LENGTH_LONG).show();
+            Log.e("error de mierda",error.toString());
+        }
+    });
+
+    queue.add(llamada);
+
+    }
+
+
+
+
+
+
+
 
 
     void tomardatos(){
         RequestQueue queue= Volley.newRequestQueue(this);
-        JsonArrayRequest jsonArrayRequest=new JsonArrayRequest(Request.Method.GET, urlscriptlectura,null, this,this );
+        JsonArrayRequest jsonArrayRequest=new JsonArrayRequest(Request.Method.GET, urlscriptlectura, null, new Response.Listener<JSONArray>() {
+
+            @Override
+            public void onResponse(JSONArray response) {
+                Toast.makeText(getApplicationContext(), "funca", Toast.LENGTH_LONG).show();
+                Log.e("NO FUNCIONA",response.toString());
+               // txt_nombre.setText("");
+
+                try {
+                    for(int i=0;i<response.length();i++){
+
+                        JSONObject prueba=response.getJSONObject(i);
+                        String name=prueba.getString("Nombre");
+                        int id=prueba.getInt("ID");
+                        String apellido=prueba.getString("Apellido");
+
+                        txt_nombre.append(String.valueOf(id)+" - "+name+"  "+ apellido+"\n\n");
+
+
+
+
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "no funca"+error.toString(), Toast.LENGTH_LONG).show();
+                //Log.e("NO FUNCIONA",error.toString());
+            }
+        });
         queue.add(jsonArrayRequest);
     }
 
-    @Override
-    public void onErrorResponse(VolleyError error) {
-        Log.e("onErrorResponse",error.toString());
-        Toast.makeText(getApplicationContext(), "error al correctar", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onResponse(JSONArray response) {
-
-        Log.e("onResponse",response.toString());
-        Toast.makeText(getApplicationContext(), "conectado", Toast.LENGTH_LONG).show();
-        try {
-            for(int i=0;i<response.length();i++){
-
-                JSONObject prueba=response.getJSONObject(i);
-                String name=prueba.getString("nombre");
-                int id=prueba.getInt("id");
-                String apellido=prueba.getString("apellido");
-
-                txt_nombre.append(name+" , "+ apellido+" , "+String.valueOf(id)+"\n\n");
-
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
 
 }
+
+
+
+
